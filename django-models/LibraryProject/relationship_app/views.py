@@ -4,8 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth import login, logout
-from .models import Library
-from .models import Book
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import User
+from .models import Library, Book, UserProfile
 
 # Function-based view to list all books
 def list_books(request):
@@ -41,3 +42,26 @@ def register(request):
 
     return render(request, template_name, {'form': form})
 
+def is_admin(user):
+    return user.is_authenticated and user.role == 'admin'
+
+def is_librarian(user):
+    return user.ia_authenticated and user.role == 'librarian'
+
+def is_member(user):
+    return user.is_authenticated and user.role == 'member'
+
+@user_passes_test(is_admin)
+def admin_view(request):
+    template_name = "relationship_app/admin_view.html"
+    return render(request, template_name)
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    template_name = "relationship_app/librarian_view.html"
+    return render(request, template_name)
+
+@user_passes_test(is_member)
+def member_view(request):
+    template_name = "relationship_app/member_view.html"
+    return render(request, template_name)
