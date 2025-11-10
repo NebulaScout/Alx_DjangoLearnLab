@@ -1,5 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views.generic.detail import DetailView
+from django.contrib.auth.forms import UserCreationForm
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
+from django.contrib.auth import login, logout
 from .models import Library
 from .models import Book
 
@@ -21,3 +25,19 @@ class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
+
+def register(request):
+    success_url = reverse_lazy("login")
+    template_name = "relationship_app/register.html"
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return render(request, success_url)
+    else:
+        form = UserCreationForm()
+
+    return render(request, template_name, {'form': form})
+
