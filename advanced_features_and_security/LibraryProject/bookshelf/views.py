@@ -5,31 +5,31 @@ from django.forms import ModelForm
 from django import forms
 
 from .models import Book
+from .forms import ExampleForm, BookForm
 
 
-class BookForm(ModelForm):
-    """Form for creating and editing books"""
-    class Meta:
-        model = Book
-        fields = ['title', 'author', 'publication_year']
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Enter book title',
-                'required': True
-            }),
-            'author': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Enter author name',
-                'required': True
-            }),
-            'publication_year': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Enter publication year',
-                'required': True
-            }),
-        }
-
+def example_form_view(request):
+    """
+    Example view demonstrating ExampleForm usage
+    """
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Process the form data
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            email = form.cleaned_data['email']
+            published_date = form.cleaned_data['published_date']
+            is_published = form.cleaned_data['is_published']
+            
+            messages.success(request, f'Form submitted successfully! Title: {title}')
+            return redirect('book_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ExampleForm()
+    
+    return render(request, 'bookshelf/form_example.html', {'form': form})
 
 
 @permission_required('bookshelf.can_view', raise_exception=True)
@@ -105,14 +105,3 @@ def book_delete(request, book_id):
     
     return render(request, 'bookshelf/book_delete.html', {'book': book})
 
-
-def check_user_permissions(user):
-    """
-    Utility function to check what permissions a user has
-    """
-    return {
-        'can_view': user.has_perm('bookshelf.can_view'),
-        'can_create': user.has_perm('bookshelf.can_create'),
-        'can_change': user.has_perm('bookshelf.can_change'),
-        'can_delete': user.has_perm('bookshelf.can_delete'),
-    }

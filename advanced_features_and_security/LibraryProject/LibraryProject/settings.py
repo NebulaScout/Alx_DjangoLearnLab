@@ -23,12 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-m@s&99)17!x2@dte7jx$)d^s-w#1k_9r5prod!rsv=l7q@u!e8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Custom User Model
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+CSRF_COOKIE_SECURE = True # Ensure CSRF cookie is only sent over HTTPS
+SESSION_COOKIE_SECURE = True # Ensure session cookie is only sent over HTTPS
+SECURE_BROWSER_XSS_FILTER = True # Enable browser XSS filtering
+SECURE_CONTENT_TYPE_NOSNIFF = True # Prevent MIME type sniffing
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 
 # Application definition
 
@@ -39,12 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'csp', # Content Security Policy app
     'bookshelf.apps.BookshelfConfig',
     'relationship_app.apps.RelationshipAppConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',  # Content Security Policy middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
