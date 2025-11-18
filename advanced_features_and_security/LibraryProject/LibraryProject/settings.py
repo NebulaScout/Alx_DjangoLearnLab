@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-m@s&99)17!x2@dte7jx$)d^s-w#1k_9r5prod!rsv=l7q@u!e8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'yourdomain.com', 'www.yourdomain.com']  # Update with your actual domain
 
 # Custom User Model
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
@@ -35,6 +35,14 @@ SESSION_COOKIE_SECURE = True # Ensure session cookie is only sent over HTTPS
 SECURE_BROWSER_XSS_FILTER = True # Enable browser XSS filtering
 SECURE_CONTENT_TYPE_NOSNIFF = True # Prevent MIME type sniffing
 X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+SECURE_SSL_REDIRECT = True # Redirect all HTTP requests to HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for one year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # For Apache proxy
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
 
 # Application definition
 
@@ -126,7 +134,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
