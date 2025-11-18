@@ -1,15 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
-from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django import forms
-from .models import Library, Book, Author
-from bookshelf.models import UserProfile
+from .models import Library, Book
 
 # Custom user creation moved to bookshelf app
 

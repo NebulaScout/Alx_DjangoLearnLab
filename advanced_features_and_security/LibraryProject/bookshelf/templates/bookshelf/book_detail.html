@@ -1,0 +1,48 @@
+{% extends 'bookshelf/base.html' %} {% block title %}{{ book.title }} -
+Bookshelf{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'book_list' %}">Books</a>
+        </li>
+        <li class="breadcrumb-item active">{{ book.title }}</li>
+      </ol>
+    </nav>
+
+    <div class="card">
+      <div class="card-header">
+        <h1>{{ book.title }}</h1>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <p class="lead">By {{ book.author }}</p>
+            <p>
+              <strong>Publication Year:</strong> {{ book.publication_year }}
+            </p>
+            <p><strong>Book ID:</strong> {{ book.id }}</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a href="{% url 'book_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+          </a>
+
+          {% if perms.bookshelf.can_change %}
+          <a href="{% url 'book_edit' book.id %}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Book
+          </a>
+          {% endif %} {% if perms.bookshelf.can_delete %}
+          <a href="{% url 'book_delete' book.id %}" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Delete Book
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'bookshelf/base.html' %} {% block title %}Edit {{ book.title }} -
+Bookshelf{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'book_list' %}">Books</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
+        </li>
+        <li class="breadcrumb-item active">Edit</li>
+      </ol>
+    </nav>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Edit Book: {{ book.title }}</h2>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %} {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">
+              Book Title <span class="text-danger">*</span>
+            </label>
+            {{ form.title }} {% if form.title.errors %}
+            <div class="text-danger small">{{ form.title.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.author.id_for_label }}" class="form-label">
+              Author <span class="text-danger">*</span>
+            </label>
+            {{ form.author }} {% if form.author.errors %}
+            <div class="text-danger small">{{ form.author.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.publication_year.id_for_label }}"
+              class="form-label"
+            >
+              Publication Year <span class="text-danger">*</span>
+            </label>
+            {{ form.publication_year }} {% if form.publication_year.errors %}
+            <div class="text-danger small">
+              {{ form.publication_year.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a
+              href="{% url 'book_detail' book.id %}"
+              class="btn btn-secondary me-md-2"
+            >
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Update Book
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
