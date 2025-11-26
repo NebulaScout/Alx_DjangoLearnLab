@@ -215,3 +215,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Shell scripts
+*.sh
+
+# config files
+*.conf
+
+# extras
+*.txt
