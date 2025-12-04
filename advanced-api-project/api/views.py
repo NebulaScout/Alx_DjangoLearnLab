@@ -1,13 +1,40 @@
 from django.shortcuts import render
 from rest_framework import generics
+from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from .serializers import BookSerializer
+from .models import Book
 
-from .serializers import AuthorSerializer, BookSerializer
-from .models import Author, Book
+class ListView(generics.ListAPIView):
+    """List all books"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
-class AuthorListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+class DetailView(generics.ListAPIView):
+    """Get detailed info on a book"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
-class BookListCreateAPIView(generics.ListCreateAPIView):
+class CreateView(LoginRequiredMixin, generics.CreateAPIView):
+    """Create a book"""
+    permission_classes = [IsAuthenticated]
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+class UpdateView(LoginRequiredMixin, generics.UpdateAPIView):
+    """Update book info"""
+    permission_classes = [IsAuthenticated]
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+class DeleteView(generics.DestroyAPIView):
+    """Delete a book"""
+    permission_classes = [IsAuthenticated]
     queryset = Book.objects.all()
     serializer_class = BookSerializer
