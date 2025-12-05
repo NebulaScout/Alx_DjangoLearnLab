@@ -37,23 +37,19 @@ class DetailView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-class CreateView(LoginRequiredMixin, generics.CreateAPIView):
+class CreateView(generics.CreateAPIView):
     """Create a book"""
     permission_classes = [IsAuthenticated]
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-class UpdateView(LoginRequiredMixin, generics.UpdateAPIView):
+class UpdateView(generics.UpdateAPIView):
     """Update book info"""
     permission_classes = [IsAuthenticated]
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
 
 class DeleteView(generics.DestroyAPIView):
     """Delete a book"""
