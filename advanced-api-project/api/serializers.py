@@ -14,7 +14,7 @@ class BookSerializer(serializers.ModelSerializer):
         current_year = datetime.now().year
         if value > current_year:
             raise serializers.ValidationError("Publication year must be less than %d", current_year)
-        elif value.len > 4:
+        elif len(str(value)) > 4:
             raise serializers.ValidationError("Invalid year")
         return value
 

@@ -2,13 +2,35 @@ from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from .serializers import BookSerializer
-from .models import Book
+from django_filters import rest_framework
+from rest_framework import filters
+
+from .serializers import BookSerializer, AuthorSerializer
+from .models import Book, Author
+
+class AuthorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
 
 class ListView(generics.ListAPIView):
-    """List all books"""
+    """
+    List all books with filtering, searching, and ordering capabilities.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    
+    # Filter backends - enable searching and ordering functionality
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    
+    # Fields that support exact match filtering
+    filterset_fields = ["title", "author", "publication_year"]
+    
+    # Fields that support text search (case-insensitive, partial matching)
+    # Searches across title field and related author name field
+    search_fields = ["title", "author__name"]
+    
+    # Fields that support ordering
+    ordering_fields = ["title", "publication_year"]
 
 class DetailView(generics.ListAPIView):
     """Get detailed info on a book"""
