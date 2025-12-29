@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from django.urls import reverse_lazy
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+BASE_URL='http://localhost:8000'
+
 
 # Application definition
 
@@ -37,8 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'requests',
+    'rest_framework',
 
     'blog.apps.BlogConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -108,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -120,6 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+# ]
+
+LOGIN_URL = reverse_lazy('blog:login')
+LOGIN_REDIRECT_URL = reverse_lazy('blog:profile')

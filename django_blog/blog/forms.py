@@ -22,4 +22,13 @@ class RegistrationForm(UserCreationForm):
         
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+
+class ProfileUpdateForm(forms.ModelForm):
+    """Form for users to update their profile information"""
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]
+        

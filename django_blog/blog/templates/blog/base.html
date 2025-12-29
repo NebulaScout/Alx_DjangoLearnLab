@@ -17,18 +17,14 @@
     <header>
       <nav>
         <ul>
-          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'blog:home' %}">Home</a></li>
           {% comment %}
           <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-          {% endcomment %} {% comment %}
-          <li><a href="{% url 'login' %}">Login</a></li>
-          <li><a href="{% url 'register' %}">Register</a></li>
-          {% endcomment %} {%if user_logged_in%}
-          <li><a href="{% url 'logout' %}">Logout</a></li>
-          {%else%}
-          <li><a href="{% url 'login' %}">Login</a></li>
-          <li><a href="{% url 'register' %}">Register</a></li>
-          {%endif%}
+          {% endcomment %}
+          <li><a href="{% url 'blog:login' %}">Login</a></li>
+          <li><a href="{% url 'blog:register' %}">Register</a></li>
+          <li><a href="{% url 'blog:login' %}">Login</a></li>
+          <li><a href="{% url 'blog:logout' %}">Logout</a></li>
         </ul>
       </nav>
     </header>

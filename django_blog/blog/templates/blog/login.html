@@ -11,7 +11,7 @@
   {%endif%} {%endfor%}
 </div>
 
-<form action="{% url 'login' %}" method="post">
+<form action="{% url 'blog:login' %}" method="post">
   <div class="row">
     {%csrf_token%}
     <div>
@@ -28,7 +28,7 @@
       {% endif %}
     </div>
 
-    <button type="submit">Login</button>
+    <button type="submit" class="btn btn-primary">Login</button>
   </div>
 </form>
 {% endblock %}
