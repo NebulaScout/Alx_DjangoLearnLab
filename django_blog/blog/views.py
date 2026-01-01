@@ -1,38 +1,30 @@
 import requests
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views import generic
+from django.urls import reverse_lazy
 
-from .forms import RegistrationForm, ProfileUpdateForm
+
+from blog.models import Post
+from api.serializers import PostSerializer
+from .forms import RegistrationForm, ProfileUpdateForm, PostForm
 
 @csrf_exempt
 def register(request):
     print(f"requst method = {request.method}")
     if request.method == 'POST':
-        print(f"POST data: {request.POST}")  # ADD THIS LINE
         form = RegistrationForm(request.POST)
         print(f"Form has been called")
         print(f"Is form valid: {form.is_valid()}")
         if form.is_valid():
             print(f"Form is valid")
-            # data = {
-            #     "username": form.cleaned_data['username'],
-            #     "first_name": form.cleaned_data['first_name'],
-            #     "last_name": form.cleaned_data['last_name'],
-            #     "email": form.cleaned_data['email'],
-            #     "password1": form.cleaned_data['password1'],
-            #     "password2": form.cleaned_data['password2'],
-            # }
-            # print(f"Data is valid: {data}")
-            # response = requests.post(f"{settings.BASE_URL}/api/blog/register/", json=data)
-
-            # if response.status_code == status.HTTP_201_CREATED:
-            #     messages.success(request, "Account created successfully")
-            # else:
-            #     messages.error(request, "Unable to create account!!")
             form.save()
             messages.success(request, "Account created successfully 👍")
             return redirect('blog:login')
@@ -67,3 +59,58 @@ def profile(request):
         form = ProfileUpdateForm(instance=request.user)
 
     return render(request, 'blog/profile.html', {"form": form})
+
+class ListView(generic.ListView):
+    """Display all blog posts"""
+    model = Post
+    template_name = 'blog/posts_list.html'
+    context_object_name = 'posts'
+    ordering = ['-published_date']
+
+
+class DetailView(generic.DetailView):
+    """Display individual blog post"""
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+
+
+class CreateView(LoginRequiredMixin, generic.CreateView):
+    """Allow authenticated users to create new posts"""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_create.html'
+    success_url = reverse_lazy('blog:posts')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class UpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+    """Allow authors to update their posts"""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_edit.html'
+    context_object_name = 'post'
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.object.pk}) # type: ignore
+
+    def test_func(self):
+        """Only allow the author to edit the post"""
+        post = self.get_object()
+        return self.request.user == post.author # type: ignore
+
+
+class DeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+    """Allow authors to delete their posts"""
+    model = Post
+    template_name = 'blog/post_delete.html'
+    context_object_name = 'post'
+    success_url = reverse_lazy('blog:posts')
+
+    def test_func(self):
+        """Only allow the author to delete the post"""
+        post = self.get_object()
+        return self.request.user == post.author # type: ignore
