@@ -12,9 +12,13 @@ from django.views import generic
 from django.urls import reverse_lazy
 
 
-from blog.models import Post
+from blog.models import Post, Comment
 from api.serializers import PostSerializer
-from .forms import RegistrationForm, ProfileUpdateForm, PostForm
+from .forms import (
+    RegistrationForm, 
+    ProfileUpdateForm, 
+    PostForm, 
+    CommentForm)
 
 @csrf_exempt
 def register(request):
@@ -26,7 +30,7 @@ def register(request):
         if form.is_valid():
             print(f"Form is valid")
             form.save()
-            messages.success(request, "Account created successfully 👍")
+            messages.success(request, "Account created successfully")
             return redirect('blog:login')
 
         else:
@@ -51,7 +55,7 @@ def profile(request):
 
         if form.is_valid():
             form.save()
-            messages.success(request, "Your profile has been updated successfully🥳")
+            messages.success(request, "Your profile has been updated successfully")
             return redirect('blog:profile')
         else:
             messages.error(request, "Unable to update your profile. Please correct any issues below.")
@@ -60,7 +64,8 @@ def profile(request):
 
     return render(request, 'blog/profile.html', {"form": form})
 
-class ListView(generic.ListView):
+# Post views
+class PostListView(generic.ListView):
     """Display all blog posts"""
     model = Post
     template_name = 'blog/posts_list.html'
@@ -68,14 +73,22 @@ class ListView(generic.ListView):
     ordering = ['-published_date']
 
 
-class DetailView(generic.DetailView):
+class PostDetailView(generic.DetailView):
     """Display individual blog post"""
     model = Post
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get all comments for this post, ordered by creation date
+        context['comments'] = self.object.comments.all()
+        # Provide the comment form for authenticated users
+        context['comment_form'] = CommentForm()
+        return context
 
-class CreateView(LoginRequiredMixin, generic.CreateView):
+
+class PostCreateView(LoginRequiredMixin, generic.CreateView):
     """Allow authenticated users to create new posts"""
     model = Post
     form_class = PostForm
@@ -87,7 +100,7 @@ class CreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
 
-class UpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
     """Allow authors to update their posts"""
     model = Post
     form_class = PostForm
@@ -103,7 +116,7 @@ class UpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
         return self.request.user == post.author # type: ignore
 
 
-class DeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
     """Allow authors to delete their posts"""
     model = Post
     template_name = 'blog/post_delete.html'
@@ -114,3 +127,62 @@ class DeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
         """Only allow the author to delete the post"""
         post = self.get_object()
         return self.request.user == post.author # type: ignore
+    
+# Comment Views
+class CommentCreateView(LoginRequiredMixin, generic.CreateView):
+    """Allow authenticated users to create comments on a post"""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        messages.success(self.request, "Comment added successfully!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Post, pk=self.kwargs['pk'])
+        return context
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+    """Allow comment authors to edit their comments"""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_edit.html'
+    context_object_name = 'comment'
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.object.post.pk}) # type: ignore
+
+    def test_func(self):
+        """Only allow the comment author to edit the comment"""
+        comment = self.get_object()
+        return self.request.user == comment.author # type: ignore
+
+    def form_valid(self, form):
+        messages.success(self.request, "Comment updated successfully!")
+        return super().form_valid(form)
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+    """Allow comment authors to delete their comments"""
+    model = Comment
+    template_name = 'blog/comment_delete.html'
+    context_object_name = 'comment'
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.object.post.pk}) # type: ignore
+
+    def test_func(self):
+        """Only allow the comment author to delete the comment"""
+        comment = self.get_object()
+        return self.request.user == comment.author # type: ignore
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Comment deleted successfully!")

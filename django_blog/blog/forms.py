@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from blog.models import Post
+from blog.models import Post, Comment
 
 class RegistrationForm(UserCreationForm):
     username = forms.CharField(max_length=100)
@@ -39,3 +39,19 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ["title", "content"]
         
+class CommentForm(forms.ModelForm):
+    """Form for creating and updating comments"""
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Write your comment here...'
+        }),
+        label='',
+        min_length=1,
+        max_length=1000
+    )
+
+    class Meta:
+        model = Comment
+        fields = ['content']

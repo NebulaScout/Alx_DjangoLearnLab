@@ -21,5 +21,60 @@
 
     <a href="{% url 'blog:posts' %}" class="back-link"><- Back to posts</a>
   </article>
+
+  <!-- Comments Section -->
+  <section class="comments-section">
+    <h3>Comments ({{ comments|length }})</h3>
+
+    <!-- Add Comment Form -->
+    {% if user.is_authenticated %}
+    <div class="comment-form-section">
+      <h4>Leave a Comment</h4>
+      <form method="post" action="{% url 'blog:add_comment' post.pk %}">
+        {% csrf_token %} {{ comment_form.as_p }}
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="login-prompt">
+      <a href="{% url 'blog:login' %}">Log in</a> to leave a comment.
+    </p>
+    {% endif %}
+
+    <!-- Comments List -->
+    <div class="comments-list">
+      {% if comments %} {% for comment in comments %}
+      <div class="comment-card">
+        <div class="comment-header">
+          <strong>{{ comment.author.username }}</strong>
+          <span class="comment-date"
+            >{{ comment.created_at|date:"F d, Y H:i" }}</span
+          >
+          {% if comment.updated_at != comment.created_at %}
+          <span class="comment-edited">(edited)</span>
+          {% endif %}
+        </div>
+        <div class="comment-content">{{ comment.content|linebreaks }}</div>
+        {% if request.user == comment.author %}
+        <div class="comment-actions">
+          <a
+            href="{% url 'blog:edit_comment' comment.pk %}"
+            class="btn btn-sm btn-secondary"
+            >Edit</a
+          >
+          <a
+            href="{% url 'blog:delete_comment' comment.pk %}"
+            class="btn btn-sm btn-danger"
+            >Delete</a
+          >
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %} {% else %}
+      <p class="no-comments">No comments yet. Be the first to comment!</p>
+      {% endif %}
+    </div>
+  </section>
 </div>
+
 {% endblock %}
