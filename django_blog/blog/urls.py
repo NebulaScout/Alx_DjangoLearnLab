@@ -4,7 +4,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from . import views
 from .views import (
     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
-    CommentCreateView, CommentDeleteView, CommentUpdateView
+    CommentCreateView, CommentDeleteView, CommentUpdateView,
+    PostSearchView, PostByTagListView
 )
 
 app_name = 'blog'
@@ -26,4 +27,8 @@ urlpatterns = [
     path('post/<int:pk>/comments/new/', CommentCreateView.as_view(), name='add_comment'),
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='edit_comment'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='delete_comment'),
+    # Search
+    path('search/', PostSearchView.as_view(), name='search'),
+    # Tags
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts_by_tag'),
 ]

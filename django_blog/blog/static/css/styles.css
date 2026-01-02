@@ -288,3 +288,46 @@ footer {
   color: #888;
   font-size: 0.85em;
 }
+
+/* Tag Styles */
+.tag-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px;
+  background-color: #6c757d;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.85em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.tag-badge:hover {
+  background-color: #5a6268;
+  color: white;
+  text-decoration: none;
+}
+
+.post-tags {
+  margin: 10px 0;
+}
+
+/* Search Form Styles */
+.search-form {
+  margin: 10px 0;
+}
+
+.search-form .form-control {
+  max-width: 250px;
+}
+
+.search-info {
+  margin: 15px 0;
+  color: #666;
+}
+
+.no-results {
+  color: #666;
+  font-style: italic;
+  margin: 20px 0;
+}

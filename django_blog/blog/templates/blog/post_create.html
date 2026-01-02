@@ -28,6 +28,15 @@
       {% endif %}
     </div>
 
+    <div class="mb-3">
+      <label for="tags" class="form-label">Tags</label>
+      {{ form.tags }}
+      <small class="form-text text-muted">{{ form.tags.help_text }}</small>
+      {% if form.tags.errors %}
+      <span style="color: red">{{ form.tags.errors }}</span>
+      {% endif %}
+    </div>
+
     <button type="submit" class="btn btn-primary">Post</button>
   </div>
 </form>

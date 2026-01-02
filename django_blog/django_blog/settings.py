@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'requests',
     'rest_framework',
+    'taggit',
 
     'blog.apps.BlogConfig',
     # 'api.apps.ApiConfig',

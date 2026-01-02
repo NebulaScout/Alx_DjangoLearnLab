@@ -10,7 +10,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import generic
 from django.urls import reverse_lazy
-
+from django.db.models import Q
+from taggit.models import Tag
 
 from blog.models import Post, Comment
 from api.serializers import PostSerializer
@@ -18,7 +19,8 @@ from .forms import (
     RegistrationForm, 
     ProfileUpdateForm, 
     PostForm, 
-    CommentForm)
+    CommentForm
+)
 
 @csrf_exempt
 def register(request):
@@ -186,3 +188,42 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteV
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Comment deleted successfully!")
+
+# Search View
+class PostSearchView(generic.ListView):
+    """Search posts by title, content, or tags"""
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct().order_by('-published_date')
+        return Post.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
+
+
+# Tag Views
+class PostByTagListView(generic.ListView):
+    """Display all posts with a specific tag"""
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        return Post.objects.filter(tags__in=[self.tag]).order_by('-published_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context

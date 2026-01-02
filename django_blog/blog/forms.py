@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from taggit.forms import TagWidget
+from taggit.models import Tag
 
 from blog.models import Post, Comment
 
@@ -37,7 +39,37 @@ class ProfileUpdateForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ["title", "content", "tags"]
+        widgets = {
+            'tags': TagWidget(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas (e.g., python, django, web)'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If editing an existing post, populate the tags field
+        if self.instance.pk:
+            self.fields['tags'].initial = ', '.join(
+                tag.name for tag in self.instance.tags.all()
+            )
+
+    def save(self, commit=True):
+        post = super().save(commit=commit)
+        
+        if commit:
+            # Clear existing tags and add new ones
+            post.tags.clear()
+            tags_input = self.cleaned_data.get('tags', '')
+            
+            if tags_input:
+                tag_names = [name.strip().lower() for name in tags_input.split(',') if name.strip()]
+                for tag_name in tag_names:
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    post.tags.add(tag)
+        
+        return post
         
 class CommentForm(forms.ModelForm):
     """Form for creating and updating comments"""
